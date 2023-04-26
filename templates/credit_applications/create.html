@@ -1,0 +1,14 @@
+{% extends "base_page.html" %}
+
+{% block content %}
+  <div class="p-5">
+    <div class="container">
+        <form method="POST" action="{% url "applications-create" %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+        <input type="submit" text="Create">
+        </form>
+    </div>
+  </div>
+
+{% endblock content %}

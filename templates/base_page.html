@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+{% load static i18n %}
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{app_label}}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+  </head>
+  <body>
+    <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
+      <div class="navbar-menu">
+        <div class="navbar-start">
+          <a class="navbar-item" href="{% url "applications-list" %}">Applications</a>
+        </div>
+        {% if user.is_authenticated %}
+            <div class="navbar-nav d-flex ml-auto justify-content-end smooth-scroll">
+                <span class="navbar-text text-gray">{{ user.email }} {{ user.last_name }}</span>
+            </div>
+        {% endif %}
+      </div>
+      <ul class="navbar-nav ml-5 justify-content-end smooth-scroll">
+        {% if user.is_authenticated %}
+            <li class="nav-item">
+                <a href="{% url 'logout' %}" class="nav-link" aria-current="page">Logout</a>
+            </li>
+        {% else %}
+            <li class="nav-item">
+                <a href="{% url 'login' %}" class="nav-link" aria-current="page">
+                    Login
+                </a>
+            </li>
+        {% endif %}
+    </ul>
+      
+    </nav>
+    {% block content %}
+    {% endblock content %}
+    {% block extra_js %}
+    {% endblock extra_js %}
+  </body>
+</html>
+
