@@ -1,9 +1,12 @@
+from django.urls import reverse_lazy
+
 # Custom model for Auth
 AUTH_USER_MODEL = "users.User"
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
 )
+LOGIN_URL = reverse_lazy("login")
 
 
 # Password validation

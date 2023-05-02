@@ -11,27 +11,31 @@
     <nav class="navbar is-dark" role="navigation" aria-label="main navigation">
       <div class="navbar-menu">
         <div class="navbar-start">
+          <a class="navbar-item" href="{% url "index" %}">Main page</a>
           <a class="navbar-item" href="{% url "applications-list" %}">Applications</a>
+          {% if user.is_authenticated and not user.is_staff %}
+            <a class="navbar-item" href="{% url "applications-create" %}">Create application</a>
+          {% endif %}
         </div>
         {% if user.is_authenticated %}
-            <div class="navbar-nav d-flex ml-auto justify-content-end smooth-scroll">
+            <div class="navbar-nav d-flex ml-auto justify-content-end smooth-scroll py-3">
                 <span class="navbar-text text-gray">{{ user.email }} {{ user.last_name }}</span>
             </div>
         {% endif %}
+        <div class="navbar-nav ml-5 justify-content-end smooth-scroll">
+          {% if user.is_authenticated %}
+              <div class="nav-item px-5 py-3">
+                  <a href="{% url 'logout' %}" class="nav-link" aria-current="page">Logout</a>
+              </div>
+          {% else %}
+              <div class="nav-item">
+                  <a href="{% url 'login' %}" class="nav-link" aria-current="page">
+                      Login
+                  </a>
+              </div>
+          {% endif %}
+            </div>
       </div>
-      <ul class="navbar-nav ml-5 justify-content-end smooth-scroll">
-        {% if user.is_authenticated %}
-            <li class="nav-item">
-                <a href="{% url 'logout' %}" class="nav-link" aria-current="page">Logout</a>
-            </li>
-        {% else %}
-            <li class="nav-item">
-                <a href="{% url 'login' %}" class="nav-link" aria-current="page">
-                    Login
-                </a>
-            </li>
-        {% endif %}
-    </ul>
       
     </nav>
     {% block content %}

@@ -6,9 +6,9 @@ from libs.utils import get_latest_version
 # https://www.django-rest-framework.org/api-guide/settings/
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "knox.auth.TokenAuthentication",
-        # SessionAuthentication is also used for CSRF
-        # validation on ajax calls from the frontend
+        # "knox.auth.TokenAuthentication",
+        # # SessionAuthentication is also used for CSRF
+        # # validation on ajax calls from the frontend
         "rest_framework.authentication.SessionAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (

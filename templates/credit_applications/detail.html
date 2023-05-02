@@ -4,18 +4,20 @@
   <div class="p-5">
     <div class="container">
         {% for field in form %}
-          <div class="inner" disabled><p>{{ field.label_tag }} {{ field }}</p></div>
+          <div class="inner"><p>{{ field.label_tag }} {{ field.value }}</p></div>
         {% endfor %}
-        {% if user.is_superuser %}
-          <form method="POST" action="{% url "applications-approve" object.pk %}">
-            {% csrf_token %}
-            <input type="submit" value="Approve application">
-          </form>
+        {% if user.is_staff %}
+          {% if not form.approved.value %}
+            <form method="POST" action="{% url "applications-approve" object.pk %}">
+              {% csrf_token %}
+              <input type="submit" value="Approve application">
+            </form>
+          {% endif %}
+          <div id="prediction-container">
+            <p>Prediction result: <span id="prediction-output">?</span></p>
+            <button name="predict" id="predict-button">Predict</button>
+          </div>
         {% endif %}
-        <div id="prediction-container">
-          <p>Prediction result: <span id="prediction-output">?</span></p>
-          <button name="predict" id="predict-button">Predict</button>
-        </div>
     </div>
   </div>
 
@@ -26,22 +28,25 @@
 
   async function predict () {
     let url = `http://localhost:8000/applications/${current_application}/predict/`;
-    let response = await fetch(url);
+    let response = await fetch(url, { credentials: "include" });
     let data = await response.json();
 
     let prediction_output = document.getElementById("prediction-output");
     if (data.prediction === false) {
       prediction_output.innerHTML = "Bad applicant";
     }
-    else {
+    else if (data.prediction === true) {
       prediction_output.innerHTML = "Good applicant";
+    }
+    else {
+      prediction_output.innerHTML = "Network error";
     }
 
   }
 
   element = document.getElementById("predict-button")
-  element.onclick = () => {
-    predict();
+  if (element) {
+    element.onclick = () => {predict();}
   }
 </script>
 {% endblock extra_js %}

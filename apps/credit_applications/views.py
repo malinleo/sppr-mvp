@@ -1,17 +1,38 @@
-from django.urls import reverse_lazy
+from pathlib import Path
+
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from .predictions import load_classifier, credit_application_to_dataframe, load_label_encoders
-from django.views.generic import CreateView, TemplateView, DeleteView, DetailView, UpdateView, ListView, FormView, RedirectView
-from rest_framework.views import APIView
+from django.urls import reverse_lazy
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    DetailView,
+    FormView,
+    ListView,
+    RedirectView,
+    TemplateView,
+    UpdateView,
+)
+
+from rest_framework import response, serializers, status
 from rest_framework.generics import RetrieveAPIView
-from rest_framework import response, status
-from pathlib import Path
-from rest_framework import serializers
-from .forms import CreditApplicationCreateForm, CreditApplicationForm, CreditApplicationListForm
-from .models import CreditApplication
-from django.contrib.auth.mixins import LoginRequiredMixin
+from rest_framework.permissions import IsAdminUser
+from rest_framework.views import APIView
+
 from apps.core.mixins import UserContextMixin
+
+from .forms import (
+    CreditApplicationCreateForm,
+    CreditApplicationForm,
+    CreditApplicationListForm,
+)
+from .models import CreditApplication
+from .predictions import (
+    credit_application_to_dataframe,
+    load_classifier,
+    load_label_encoders,
+)
 
 
 class ApplicationCreateView(LoginRequiredMixin, UserContextMixin, CreateView):
@@ -85,6 +106,7 @@ class CreditScoringAPIView(RetrieveAPIView):
     """API view for credit scoring prediction."""
     classifier = load_classifier()
     label_encoders = load_label_encoders(Path("dataset_without_encoding.csv"))
+    permission_classes = (IsAdminUser,)
     queryset = CreditApplication.objects.all()
     serializer_class = CreditPredictionSerializer
 
