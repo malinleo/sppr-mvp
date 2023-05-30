@@ -111,3 +111,10 @@ pyuwsgi
 # uwsgitop is a top-like command that uses the uWSGI Stats Server to monitor your uwsgi application.
 # https://pypi.org/project/uwsgitop/
 uwsgitop
+
+
+scikit-learn
+numpy
+pandas
+sklearn-genetic-opt
+seaborn

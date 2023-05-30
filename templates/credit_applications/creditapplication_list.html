@@ -3,19 +3,38 @@
 {% block content %}
   <div class="p-5">
     <div class="container">
-        <table border="2">
-            {% for application in object_list %}
-            <tr>
-                <td>
-                  <a href="{% url "applications-detail" application.pk %}">
-                    {{ application.pk }} 
-                    {{ application.applicant.email }}, 
-                    {{ application.approved }}
+      {% for application in object_list %}
+      <div class="col-md-3">
+        <div class="row py-2">
+          <div class="card" style="width: 18rem; border: solid 1px;">
+            <div class="card-body m-1">
+              <h5 class="card-title">{{ application.applicant.email }}</h5>
+                <a href="{% url "applications-detail" application.pk %}" class="btn btn-primary" role="button">
+                  See application
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+      {% comment %} {% if not user.is_staff %}
+        <div class="col-md-3">
+          <div class="row py-2">
+            <div class="card" style="width: 18rem; border: solid 1px;">
+              <div class="card-body m-1">
+                <h5 class="card-title">
+                  <a href="{% url "applications-create" %}" class="btn btn-primary" role="button">
+                    Create new application
                   </a>
-                </td>
-              </tr>
-            {% endfor %}
-        </table>
+                </h5>
+                  <a href="{% url "applications-detail" application.pk %}" class="btn btn-primary" role="button">
+                    See application
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% comment %} {% endif %} {% endcomment %}
     </div>
   </div>
 

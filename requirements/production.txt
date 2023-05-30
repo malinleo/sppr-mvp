@@ -8,15 +8,11 @@ amqp==5.1.1
     # via kombu
 arrow==1.2.3
     # via -r requirements/production.in
-asgiref==3.6.0
+asgiref==3.7.1
     # via django
-async-timeout==4.0.2
-    # via redis
-attrs==22.2.0
-    # via
-    #   jsonschema
-    #   pytest
-beautifulsoup4==4.12.1
+attrs==23.1.0
+    # via jsonschema
+beautifulsoup4==4.12.2
     # via html-sanitizer
 billiard==3.6.4.0
     # via celery
@@ -44,11 +40,13 @@ click-plugins==1.1.1
     # via celery
 click-repl==0.2.0
     # via celery
-cron-descriptor==1.2.35
+cron-descriptor==1.4.0
     # via django-celery-beat
-cryptography==40.0.1
+cryptography==40.0.2
     # via django-rest-knox
-django==4.2
+deap==1.3.3
+    # via sklearn-genetic-opt
+django==4.2.1
     # via
     #   -r requirements/production.in
     #   django-appconf
@@ -70,7 +68,7 @@ django-environ==0.10.0
     # via -r requirements/production.in
 django-extensions==3.2.1
     # via -r requirements/production.in
-django-filter==23.1
+django-filter==23.2
     # via -r requirements/production.in
 django-health-check==3.17.0
     # via -r requirements/production.in
@@ -90,7 +88,7 @@ djangorestframework==3.14.0
     #   django-rest-knox
     #   drf-spectacular
     #   drf-standardized-errors
-drf-spectacular==0.26.1
+drf-spectacular==0.26.2
     # via
     #   -r requirements/production.in
     #   drf-standardized-errors
@@ -100,7 +98,7 @@ execnet==1.9.0
     # via pytest-xdist
 factory-boy==3.2.1
     # via -r requirements/production.in
-faker==18.3.4
+faker==18.9.0
     # via factory-boy
 html-sanitizer==1.9.3
     # via -r requirements/production.in
@@ -114,6 +112,8 @@ jmespath==1.0.1
     # via
     #   boto3
     #   botocore
+joblib==1.2.0
+    # via scikit-learn
 jsonschema==4.17.3
     # via drf-spectacular
 kombu==5.2.4
@@ -126,10 +126,20 @@ mdurl==0.1.2
     # via markdown-it-py
 mistune==2.0.5
     # via -r requirements/production.in
-packaging==23.0
+numpy==1.24.3
+    # via
+    #   -r requirements/production.in
+    #   deap
+    #   pandas
+    #   scikit-learn
+    #   scipy
+    #   sklearn-genetic-opt
+packaging==23.1
     # via
     #   pytest
     #   pytest-sugar
+pandas==2.0.1
+    # via -r requirements/production.in
 pilkit==2.0
     # via django-imagekit
 pillow==9.5.0
@@ -142,11 +152,11 @@ psycopg2-binary==2.9.6
     # via -r requirements/production.in
 pycparser==2.21
     # via cffi
-pygments==2.14.0
+pygments==2.15.1
     # via rich
 pyrsistent==0.19.3
     # via jsonschema
-pytest==7.2.2
+pytest==7.3.1
     # via
     #   -r requirements/production.in
     #   pytest-django
@@ -154,9 +164,9 @@ pytest==7.2.2
     #   pytest-xdist
 pytest-django==4.5.2
     # via -r requirements/production.in
-pytest-sugar==0.9.6
+pytest-sugar==0.9.7
     # via -r requirements/production.in
-pytest-xdist==3.2.1
+pytest-xdist==3.3.1
     # via -r requirements/production.in
 python-crontab==2.7.1
     # via django-celery-beat
@@ -165,40 +175,56 @@ python-dateutil==2.8.2
     #   arrow
     #   botocore
     #   faker
+    #   pandas
     #   python-crontab
 pytz==2023.3
     # via
     #   celery
     #   django-timezone-field
     #   djangorestframework
+    #   pandas
 pyuwsgi==2.0.21
     # via -r requirements/production.in
 pyyaml==6.0
     # via drf-spectacular
-redis==4.5.4
+redis==4.5.5
     # via
     #   celery
     #   django-redis
-rich==13.3.3
+rich==13.3.5
     # via -r requirements/production.in
-s3transfer==0.6.0
+s3transfer==0.6.1
     # via boto3
+scikit-learn==1.2.2
+    # via
+    #   -r requirements/production.in
+    #   sklearn-genetic-opt
+scipy==1.10.1
+    # via scikit-learn
 six==1.16.0
     # via
     #   click-repl
     #   django-imagekit
     #   python-dateutil
-soupsieve==2.4
+sklearn-genetic-opt==0.10.1
+    # via -r requirements/production.in
+soupsieve==2.4.1
     # via beautifulsoup4
-sqlparse==0.4.3
+sqlparse==0.4.4
     # via django
-termcolor==2.2.0
+termcolor==2.3.0
     # via pytest-sugar
+threadpoolctl==3.1.0
+    # via scikit-learn
+tqdm==4.65.0
+    # via sklearn-genetic-opt
 tzdata==2023.3
-    # via django-celery-beat
+    # via
+    #   django-celery-beat
+    #   pandas
 uritemplate==4.1.1
     # via drf-spectacular
-urllib3==1.26.15
+urllib3==1.26.16
     # via botocore
 uwsgitop==0.11
     # via -r requirements/production.in

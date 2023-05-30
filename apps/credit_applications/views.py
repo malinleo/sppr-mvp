@@ -6,19 +6,14 @@ from django.shortcuts import get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import (
     CreateView,
-    DeleteView,
     DetailView,
     FormView,
     ListView,
-    RedirectView,
-    TemplateView,
-    UpdateView,
 )
 
 from rest_framework import response, serializers, status
 from rest_framework.generics import RetrieveAPIView
 from rest_framework.permissions import IsAdminUser
-from rest_framework.views import APIView
 
 from apps.core.mixins import UserContextMixin
 
@@ -43,7 +38,7 @@ class ApplicationCreateView(LoginRequiredMixin, UserContextMixin, CreateView):
     def get_success_url(self) -> str:
         return reverse_lazy("applications-detail", args=(self.object.pk,))
 
-    def form_valid(self, form):
+    def form_valid(self, form: CreditApplicationCreateForm):
         self.object = form.save(commit=False)
         self.object.applicant = self.request.user
         self.object.save()
@@ -105,22 +100,16 @@ class CreditPredictionSerializer(serializers.Serializer):
 class CreditScoringAPIView(RetrieveAPIView):
     """API view for credit scoring prediction."""
     classifier = load_classifier()
-    label_encoders = load_label_encoders(Path("dataset_without_encoding.csv"))
+    # label_encoders = load_label_encoders(Path("dataset_2.csv"))
     permission_classes = (IsAdminUser,)
     queryset = CreditApplication.objects.all()
-    serializer_class = CreditPredictionSerializer
+    serializer_class = CreditPredictionSerializer 
 
     def get(self, request, pk, *args, **kwargs):
         """Predict if given application is good or bad."""
         application: CreditApplication = self.get_object()
         data = credit_application_to_dataframe(application)
-        transformed_data = []
-        for col, label_encoder in zip(data.columns, self.label_encoders):
-            if data[col].dtype == "object":
-                transformed_data.extend(label_encoder.transform(data[col]))
-            else:
-                transformed_data.extend(data[col])
-        prediction = self.classifier.predict([transformed_data])
+        prediction = self.classifier.predict([data.iloc[0].to_list()])
         serializer = self.get_serializer(data={"prediction": prediction[0]})
         serializer.is_valid(raise_exception=True)
         return response.Response(
