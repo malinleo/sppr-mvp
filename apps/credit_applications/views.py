@@ -70,7 +70,9 @@ class ApplicationListView(LoginRequiredMixin, UserContextMixin, ListView):
     def get_queryset(self):
         if self.request.user.is_staff:
             return super().get_queryset()
-        return super().get_queryset().filter(applicant=self.request.user)
+        return super().get_queryset().filter(
+            applicant=self.request.user,
+        ).order_by("approved")
 
 
 class ApplicationApproveView(LoginRequiredMixin, UserContextMixin, FormView):

@@ -2,16 +2,16 @@ from pathlib import Path
 
 import joblib
 import pandas as pd
-from sklearn.ensemble import VotingClassifier
+from sklearn.ensemble import BaggingClassifier
 from sklearn.preprocessing import LabelEncoder
 
 
 from ..models import CreditApplication
 
 
-def load_classifier() -> VotingClassifier:
+def load_classifier() -> BaggingClassifier:
     """Load pre-trained classifier."""
-    return joblib.load("VotingClassifier_model.pkl")
+    return joblib.load("BaggingClassifier_model.pkl")
 
 
 def load_label_encoders(dataset_path: Path) -> list[LabelEncoder]:

@@ -20,10 +20,7 @@ from sklearn.linear_model import (
 )
 from sklearn.metrics import (
     accuracy_score,
-    precision_score,
-    recall_score,
-    roc_auc_score,
-    roc_curve,
+    f1_score,
 )
 from sklearn.model_selection import (
     GridSearchCV,
@@ -31,9 +28,8 @@ from sklearn.model_selection import (
     train_test_split,
 )
 from sklearn.naive_bayes import GaussianNB
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from sklearn_genetic import GASearchCV
 from sklearn_genetic.plots import plot_fitness_evolution
@@ -53,6 +49,29 @@ class RidgeWithTuneParams(ModelWithTuneParams):
         "alpha": Continuous(.1, 10.0, distribution="log-uniform"),
         "tol": Continuous(1e-4, 1.0, distribution='log-uniform'),
         "max_iter": Integer(200, 300),
+    }
+
+
+@dataclass
+class SGDWithTuneParams(ModelWithTuneParams):
+    model = SGDClassifier()
+    params = {
+        "loss": Categorical(["hinge", "log_loss", "modified_huber", "squared_hinge", "perceptron"]),
+        "penalty": Categorical(["l1", "l2", "elasticnet"]),
+        "alpha": Continuous(.1, 10.0, distribution="log-uniform"),
+        "max_iter": Integer(500, 2000),
+        "tol": Continuous(1e-4, 1.0, distribution='log-uniform'),
+    }
+
+
+@dataclass
+class SVCWithTuneParams(ModelWithTuneParams):
+    model = SVC(class_weight="balanced", cache_size=1000)
+    params = {
+        "C": Continuous(.1, 10.0, distribution="log-uniform"),
+        "kernel": Categorical(["poly", "rbf", "sigmoid"]),
+        "gamma": Continuous(.1, 100.0, distribution="log-uniform"),
+        "tol": Continuous(1e-4, 1.0, distribution='log-uniform'),
     }
 
 
@@ -99,12 +118,47 @@ class GradientBoostingWithTuneParams(ModelWithTuneParams):
 
 
 @dataclass
+class BaggingWithTuneParams(ModelWithTuneParams):
+    model = BaggingClassifier(
+        estimator=RidgeClassifier(class_weight="balanced"),
+    )
+    params = {
+        "n_estimators": Integer(10, 250),
+        "max_samples": Integer(1, 5000),
+        "max_features": Integer(1, 15),
+        "bootstrap_features": Categorical([True, False]),
+    }
+
+
+@dataclass
+class StackingWithTuneParams(ModelWithTuneParams):
+    model = StackingClassifier(
+        estimators=[
+            ("gaussian", GaussianNB()),
+            ("ridge", RidgeClassifier(class_weight="balanced")),
+            ("sgd", SGDClassifier(loss="log_loss", class_weight="balanced")),
+        ],
+    )
+    params = {
+        "final_estimator": Categorical(
+            [
+                RidgeClassifier(class_weight="balanced"),
+                GaussianNB(),
+                SGDClassifier(class_weight="balanced"),
+            ],
+        ),
+        "cv": Categorical([StratifiedKFold(n_splits=3, shuffle=True), None]),
+    }
+
+
+@dataclass
 class VotingWithTuneParams(ModelWithTuneParams):
     model = VotingClassifier(
         estimators=[
+            ("gaussian", GaussianNB()),
+            # ("ridge", RidgeClassifier(class_weight="balanced")),
+            ("sgd", SGDClassifier(loss="log_loss", class_weight="balanced")),
             ("dtree", DecisionTreeClassifier()),
-            ("rf", RandomForestClassifier()),
-            ("grad_boost", GradientBoostingClassifier(max_depth=4)),
         ],
     )
     params = {
@@ -147,7 +201,8 @@ if __name__ == "__main__":
 
     simple_models: list[ModelWithTuneParams] = [
         RidgeWithTuneParams(),
-        # DecisionTreeWithTuneParams(),
+        SGDWithTuneParams(),
+        SVCWithTuneParams(),
     ]
     estimators = [
         ("gaussian", GaussianNB()),
@@ -156,17 +211,35 @@ if __name__ == "__main__":
         ("rf", RandomForestClassifier()),
         ("grad_boost", GradientBoostingClassifier(max_depth=4)),
     ]
+    # models = [
+    #     RandomForestClassifier(),
+    #     GradientBoostingClassifier(max_depth=5),
+    #     AdaBoostClassifier(),
+    #     BaggingClassifier(
+    #         estimator=RidgeClassifier(class_weight="balanced"),
+    #         n_estimators=100,
+    #     ),
+    #     StackingClassifier(
+    #         estimators=estimators,
+    #         final_estimator=RidgeClassifier(class_weight="balanced"),
+    #     ),
+    #     VotingClassifier(
+    #         estimators=estimators,
+    #     ),
+    # ]
     models: list[ModelWithTuneParams] = [
-        # RandomForestWithTuneParams(),
         # GradientBoostingWithTuneParams(),
-        # AdaBoostClassifier(),
-        # BaggingClassifier(),
-        # StackingClassifier(estimators=estimators),
+        BaggingWithTuneParams(),
+        # StackingWithTuneParams(),
         # VotingWithTuneParams(),
     ]
     kfold_cross_validation = StratifiedKFold(n_splits=3, shuffle=True)
 
-    for model in simple_models + models:
+    scaler = StandardScaler()
+    scaler.fit(X_train)
+    X_train = scaler.transform(X_train)
+    X_test = scaler.transform(X_test)
+    for model in models:
         evolved_estimator = GASearchCV(
             estimator=model.model,
             cv=kfold_cross_validation,
@@ -175,13 +248,14 @@ if __name__ == "__main__":
             n_jobs=-1,
             verbose=True,
             population_size=10,
-            generations=20
+            generations=20,
         )
         evolved_estimator.fit(X_train, y_train)
         joblib.dump(evolved_estimator.estimator, f"{type(evolved_estimator.estimator).__name__}_model.pkl", compress=9)
-        print(type(evolved_estimator.estimator).__name__)
+        print(type(model.model).__name__)
         print(evolved_estimator.best_params_)
         y_predict_ga = evolved_estimator.predict(X_test)
         print(accuracy_score(y_test, y_predict_ga))
+        print(f1_score(y_test, y_predict_ga))
     plot_fitness_evolution(evolved_estimator)
     plt.show()
